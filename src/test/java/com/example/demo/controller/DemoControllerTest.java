@@ -10,6 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.junit.jupiter.api.Test;
 
 /**
  * Skeleton template for a controller test using MockMvc.
@@ -29,5 +32,44 @@ class DemoControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    // add your test cases here
+    @Test
+    void basicWordsTest() throws Exception {
+    	//loquen
+    	mockMvc.perform(get("/remove").param("input", "eloquent")).andExpect(status().isOk()).andExpect(content().string("loquen"));
+    	
+    	mockMvc.perform(get("/remove").param("input", "country")).andExpect(status().isOk()).andExpect(content().string("ountr"));
+
+        mockMvc.perform(get("/remove").param("input", "person")).andExpect(status().isOk()) .andExpect(content().string("erso"));
+    	
+    }
+    @Test
+    void twoCharactersTest() throws Exception {
+        mockMvc.perform(get("/remove").param("input", "ab")).andExpect(status().isOk()).andExpect(content().string(""));
+    }
+    @Test
+    void threeCharactersTest() throws Exception {
+        mockMvc.perform(get("/remove").param("input", "xyz"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("y"));
+    }
+
+    @Test
+    void specialCharactersTest() throws Exception {
+    	  mockMvc.perform(get("/remove").param("input", "_123_%qwerty+"))
+          .andExpect(status().isOk())
+          .andExpect(content().string("123_%qwerty"));
+    }
+
+    @Test
+    void shouldReturnBadRequestForSingleCharacter() throws Exception {
+        mockMvc.perform(get("/remove").param("input", "a"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Input string must have atleast 2 characters"));
+    }
+
+    @Test
+    void EmptyStringTest() throws Exception {
+        mockMvc.perform(get("/remove").param("input", ""))
+                .andExpect(status().isBadRequest());
+    }
 }
